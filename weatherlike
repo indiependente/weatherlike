@@ -1,0 +1,43 @@
+var http = require('http');
+var https = require('https');
+
+var qs = require('querystring');
+var htmlparser2 = require('htmlparser2');
+
+var woeid = "";
+var firstwoeid = true;
+var parser = new htmlparser2.Parser({
+	onattribute: function(name, value){
+		if (firstwoeid && name === "data-woeid")
+			{
+				woeid = value;
+				firstwoeid = false;
+				parser.end();
+			}
+	}
+});
+
+
+var url="http://woeid.rosselliot.co.nz/lookup/";
+var city = qs.escape("Salerno, IT");
+var yahoo = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D$&format=json&callback=";
+http.get(url+city, function(response){
+
+	response.on('data', function(data){
+		parser.write(data);
+	});
+	response.on('end', function(){
+		parser.end();
+		yahoo = yahoo.replace("$", woeid);
+		https.get(yahoo, function(response){
+			var weather = "";
+			response.on('data', function(data){
+				weather += data;
+			});
+			response.on('end', function(){
+				var json = JSON.parse(weather);
+				console.dir(json.query.results.channel.item.forecast);
+			});
+		});
+	});
+});
