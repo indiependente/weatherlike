@@ -4,6 +4,11 @@ var https = require('https');
 var qs = require('querystring');
 var htmlparser2 = require('htmlparser2');
 
+var woeidurl="http://woeid.rosselliot.co.nz/lookup/";
+var yahoo = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D$&format=json&callback=";
+
+
+
 var woeid = "";
 var firstwoeid = true;
 var parser = new htmlparser2.Parser({
@@ -18,17 +23,25 @@ var parser = new htmlparser2.Parser({
 });
 
 
-var url="http://woeid.rosselliot.co.nz/lookup/";
-var city = qs.escape("Salerno, IT");
-var yahoo = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D$&format=json&callback=";
-http.get(url+city, function(response){
-
-	response.on('data', function(data){
-		parser.write(data);
+function getWoeid(city, callback){
+	http.get(woeidurl+qs.escape(city), function(response){
+		response.on('data', function(data){
+			parser.write(data);
+		});
+		response.on('end', function(){
+			parser.end();
+			var url = getYahooURLFromWoeid(woeid);
+			callback(null, url);
+		});
 	});
-	response.on('end', function(){
-		parser.end();
-		yahoo = yahoo.replace("$", woeid);
+}
+
+function getYahooURLFromWoeid(woeid){
+	return yahoo.replace("$", woeid);
+}
+
+function inCity(city, callback){
+	getWoeid(city, function(err, yahoo){
 		https.get(yahoo, function(response){
 			var weather = "";
 			response.on('data', function(data){
@@ -36,8 +49,24 @@ http.get(url+city, function(response){
 			});
 			response.on('end', function(){
 				var json = JSON.parse(weather);
-				console.dir(json.query.results.channel.item.forecast);
+				callback(null, {'woeid' : woeid, 'forecast' : json.query.results.channel.item.forecast});
 			});
 		});
 	});
-});
+}
+
+function inWoeid(woeid, callback){
+	https.get(getYahooURLFromWoeid(woeid), function(response){
+		var weather = "";
+		response.on('data', function(data){
+			weather += data;
+		});
+		response.on('end', function(){
+			var json = JSON.parse(weather);
+			callback(null, {'woeid' : woeid, 'forecast' : json.query.results.channel.item.forecast});
+		});
+	});
+}
+
+module.exports.inCity = inCity;
+module.exports.inWoeid = inWoeid;
