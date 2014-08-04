@@ -1,10 +1,11 @@
 {
   "name": "weatherlike",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "REST weather information",
   "main": "weatherlike",
   "dependencies": {
-    "htmlparser2": "^3.7.2"
+    "htmlparser2": "^3.7.2",
+    "lru-cache": "^2.5.0"
   },
   "devDependencies": {},
   "scripts": {

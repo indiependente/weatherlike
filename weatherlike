@@ -1,13 +1,20 @@
-var http = require('http');
-var https = require('https');
+var http 		= 	require('http');
+var https 		= 	require('https');
 
-var qs = require('querystring');
-var htmlparser2 = require('htmlparser2');
+var qs 			= 	require('querystring');
+var htmlparser2 = 	require('htmlparser2');
+
+var LRU 		=	require('lru-cache');
 
 var woeidurl="http://woeid.rosselliot.co.nz/lookup/";
 var yahoo = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D$&format=json&callback=";
 
 
+var CACHE_LIMIT = 1000;
+var idCache = LRU(CACHE_LIMIT);
+
+
+var VERBOSE = false;
 
 var woeid = "";
 var firstwoeid = true;
@@ -30,8 +37,15 @@ function getWoeid(city, callback){
 		});
 		response.on('end', function(){
 			parser.end();
+			if (!idCache.has(city)){
+				idCache.set(city, woeid);	//	cache the <city, woeid>
+				if (VERBOSE) {
+					console.log("%s has been cached", city);
+					console.log("idCache now has length of %s", idCache.keys().length);
+				}
+			}
 			var url = getYahooURLFromWoeid(woeid);
-			callback(null, url);
+			getWeather(null, url, callback);
 		});
 	});
 }
@@ -40,19 +54,31 @@ function getYahooURLFromWoeid(woeid){
 	return yahoo.replace("$", woeid);
 }
 
-function inCity(city, callback){
-	getWoeid(city, function(err, yahoo){
-		https.get(yahoo, function(response){
-			var weather = "";
-			response.on('data', function(data){
-				weather += data;
-			});
-			response.on('end', function(){
-				var json = JSON.parse(weather);
-				callback(null, {'woeid' : woeid, 'forecast' : json.query.results.channel.item.forecast});
-			});
+function getWeather(err, yahoo, callback){
+	https.get(yahoo, function(response){
+		var weather = "";
+		response.on('data', function(data){
+			weather += data;
+		});
+		response.on('end', function(){
+			var json = JSON.parse(weather);
+			callback(null, {'woeid' : woeid, 'forecast' : json.query.results.channel.item.forecast});
 		});
 	});
+}
+
+function inCity(city, callback){
+	if(idCache.has(city))	//	try to save time using the cache
+		{
+			if(VERBOSE){console.log("City %s found in cache!", city);}
+			getWeather(null, getYahooURLFromWoeid(idCache.get(city)), callback);
+		}
+	else
+		{
+			if(VERBOSE){console.log("%s not cached yet", city);}
+			getWoeid(city, callback);
+
+		}
 }
 
 function inWoeid(woeid, callback){
