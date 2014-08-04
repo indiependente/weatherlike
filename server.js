@@ -14,7 +14,7 @@ function sendJSON(data, wstream){
 http.createServer(function(req, res){
 	if (req.method === "GET"){
 		var parsedURL = url.parse(req.url, true);
-		if (parsedURL.pathname === "/weatherapi/city"){
+		if (parsedURL.pathname.match("^/weatherapi/city")){
 			weatherlike.inCity(parsedURL.query.city, function(err, weather){
 				if (err)
 					{sendJSON(errorResponse, res); return;}
@@ -22,7 +22,7 @@ http.createServer(function(req, res){
 				sendJSON(weather, res);
 			});
 		}
-		else if (parsedURL.pathname === "/weatherapi/woeid"){
+		else if (parsedURL.pathname.match("^/weatherapi/woeid")){
 			weatherlike.inWoeid(parsedURL.query.woeid, function(err, weather){
 				if (err)
 					{sendJSON(errorResponse, res); return;}
