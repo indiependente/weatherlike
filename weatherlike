@@ -6,15 +6,18 @@ var htmlparser2 = 	require('htmlparser2');
 
 var LRU 		=	require('lru-cache');
 
-var woeidurl="http://woeid.rosselliot.co.nz/lookup/";
-var yahoo = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D$&format=json&callback=";
+var woeidurl	=	"http://woeid.rosselliot.co.nz/lookup/";
+var yahoo 		= 	"https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D$&format=json&callback=";
 
 
-var CACHE_LIMIT = 1000;
-var idCache = LRU(CACHE_LIMIT);
+var CACHE_LIMIT = 	1000;
+var idCache 	= 	LRU(CACHE_LIMIT);
+
+var VERBOSE 	= 	false;
 
 
-var VERBOSE = false;
+
+
 
 var woeid = "";
 var firstwoeid = true;
@@ -62,7 +65,10 @@ function getWeather(err, yahoo, callback){
 		});
 		response.on('end', function(){
 			var json = JSON.parse(weather);
-			callback(null, {'woeid' : woeid, 'forecast' : json.query.results.channel.item.forecast});
+			if(json.query)
+				callback(null, {'woeid' : woeid, 'forecast' : json.query.results.channel.item.forecast});
+			else
+				callback(true, null);
 		});
 	});
 }
@@ -89,7 +95,10 @@ function inWoeid(woeid, callback){
 		});
 		response.on('end', function(){
 			var json = JSON.parse(weather);
-			callback(null, {'woeid' : woeid, 'forecast' : json.query.results.channel.item.forecast});
+			if(json.query)
+				callback(null, {'woeid' : woeid, 'forecast' : json.query.results.channel.item.forecast});
+			else
+				callback(true, null);
 		});
 	});
 }

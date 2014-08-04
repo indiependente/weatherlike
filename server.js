@@ -1,6 +1,8 @@
-var weatherlike = require('./weatherlike');
-var http = require('http');
-var url = require('url');
+var weatherlike 	= 	require('./weatherlike');
+var http 			= 	require('http');
+var url 			= 	require('url');
+
+var errorResponse 	= 	{'error' : 'BAD REQUEST'};
 
 function sendJSON(data, wstream){
 	wstream.writeHead(200, {'Content-Type' : 'application/json'});
@@ -15,14 +17,16 @@ http.createServer(function(req, res){
 		if (parsedURL.pathname === "/weatherapi/city"){
 			weatherlike.inCity(parsedURL.query.city, function(err, weather){
 				if (err)
-					throw err;
+					{sendJSON(errorResponse, res); return;}
+
 				sendJSON(weather, res);
 			});
 		}
 		else if (parsedURL.pathname === "/weatherapi/woeid"){
 			weatherlike.inWoeid(parsedURL.query.woeid, function(err, weather){
 				if (err)
-					throw err;
+					{sendJSON(errorResponse, res); return;}
+
 				sendJSON(weather, res);
 			});
 		}
