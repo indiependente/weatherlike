@@ -1,6 +1,6 @@
 {
   "name": "weatherlike",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "REST weather information",
   "main": "weatherlike",
   "dependencies": {
