@@ -13,8 +13,7 @@ var yahoo 		= 	"https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20
 var CACHE_LIMIT = 	1000;
 var idCache 	= 	LRU(CACHE_LIMIT);
 
-var VERBOSE 	= 	false;
-
+var VERBOSE 	= 	process.env.VERBOSE;
 
 
 
