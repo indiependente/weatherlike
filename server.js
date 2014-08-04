@@ -2,6 +2,8 @@ var weatherlike 	= 	require('./weatherlike');
 var http 			= 	require('http');
 var url 			= 	require('url');
 
+var PORT 			=	process.argv[2];
+
 var errorResponse 	= 	{'error' : 'BAD REQUEST'};
 
 function sendJSON(data, wstream){
@@ -31,4 +33,4 @@ http.createServer(function(req, res){
 			});
 		}
 	}
-}).listen(3700);
+}).listen(PORT);
