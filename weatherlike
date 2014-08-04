@@ -39,6 +39,8 @@ function getWoeid(city, callback){
 		});
 		response.on('end', function(){
 			parser.end();
+			if(VERBOSE)
+				console.log("woeid found is %s", woeid);
 			if (!idCache.has(city)){
 				idCache.set(city, woeid);	//	cache the <city, woeid>
 				if (VERBOSE) {
@@ -68,6 +70,10 @@ function getWeather(err, yahoo, callback){
 				callback(null, {'woeid' : woeid, 'forecast' : json.query.results.channel.item.forecast});
 			else
 				callback(true, null);
+
+			woeid = "";
+			firstwoeid = true;
+
 		});
 	});
 }
@@ -75,7 +81,10 @@ function getWeather(err, yahoo, callback){
 function inCity(city, callback){
 	if(idCache.has(city))	//	try to save time using the cache
 		{
-			if(VERBOSE){console.log("City %s found in cache!", city);}
+			if(VERBOSE){
+				console.log("City %s found in cache!", city);
+				console.log("woeid : %s", idCache.peek(city));
+			}
 			getWeather(null, getYahooURLFromWoeid(idCache.get(city)), callback);
 		}
 	else
