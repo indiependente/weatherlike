@@ -8,7 +8,7 @@ Node.js weather server JSON API
 - Query Yahoo Weather APIs for that woeid
 - Reply with the JSON weather forecast for 5 days from the moment of the request
 
-===========
+
 
 ##API
 ####weatherlike has two APIs
@@ -16,11 +16,12 @@ Node.js weather server JSON API
 
 - ```weatherlike.inWoeid(woeid, callback)``` where you can ask for that woeid in case you already know it.
 
-===========
+
 
 ##Example
 ```javascript
 var weatherlike = require('./weatherlike');
+
 http.createServer(function(req, res){
 	if (req.method === "GET"){
 		var parsedURL = url.parse(req.url, true);
@@ -34,13 +35,12 @@ http.createServer(function(req, res){
 }).listen(PORT);
 ```
 
-===========
+
 
 ##Server REST API
 - `/weatherapi/city` e.g. `/weatherapi/city?city=Rome`
 - `/weatherapi/woeid` e.g. `/weatherapi/woeid?woeid=721943`
 
-===========
 
 ##JSON reply
 ####weatherlike sends back a reply like this for both requests:
@@ -49,7 +49,7 @@ http.createServer(function(req, res){
 ```
 As you can see you can get the woeid as soon as you get the first reply.
 
-===========
+
 
 ##License
 ####MIT
