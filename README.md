@@ -12,9 +12,33 @@ Node.js weather server JSON API
 
 ##API
 ####weatherlike has two APIs
-- ```/weatherapi/city``` where you can specify the city you want the forecast for.
-e.g. `/weatherapi/city?city=Rome`
-- ```/weatherapi/woeid``` where you can ask for that woeid in case you already know it. e.g. `/weatherapi/woeid?woeid=721943`
+- ```weatherlike.inCity(city, callback)``` where you can specify the city you want the forecast for.
+
+- ```weatherlike.inWoeid(woeid, callback)``` where you can ask for that woeid in case you already know it.
+
+===========
+
+##Example
+```javascript
+var weatherlike = require('./weatherlike');
+http.createServer(function(req, res){
+	if (req.method === "GET"){
+		var parsedURL = url.parse(req.url, true);
+		if (parsedURL.pathname.match("^/weatherapi/city")){
+			weatherlike.inCity(parsedURL.query.city, sendWeather);
+		}
+		else if (parsedURL.pathname.match("^/weatherapi/woeid")){
+			weatherlike.inWoeid(parsedURL.query.woeid, sendWeather);
+		}
+	}
+}).listen(PORT);
+```
+
+===========
+
+##Server REST API
+- `/weatherapi/city` e.g. `/weatherapi/city?city=Rome`
+- `/weatherapi/woeid` e.g. `/weatherapi/woeid?woeid=721943`
 
 ===========
 
