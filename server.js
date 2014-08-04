@@ -11,26 +11,22 @@ function sendJSON(data, wstream){
 	wstream.end(JSON.stringify(data));
 }
 
+function sendWeather(err, weather){
+	if (err)
+		{sendJSON(errorResponse, res); return;}
+
+	sendJSON(weather, res);
+}
 
 
 http.createServer(function(req, res){
 	if (req.method === "GET"){
 		var parsedURL = url.parse(req.url, true);
 		if (parsedURL.pathname.match("^/weatherapi/city")){
-			weatherlike.inCity(parsedURL.query.city, function(err, weather){
-				if (err)
-					{sendJSON(errorResponse, res); return;}
-
-				sendJSON(weather, res);
-			});
+			weatherlike.inCity(parsedURL.query.city, sendWeather);
 		}
 		else if (parsedURL.pathname.match("^/weatherapi/woeid")){
-			weatherlike.inWoeid(parsedURL.query.woeid, function(err, weather){
-				if (err)
-					{sendJSON(errorResponse, res); return;}
-
-				sendJSON(weather, res);
-			});
+			weatherlike.inWoeid(parsedURL.query.woeid, sendWeather);
 		}
 	}
 }).listen(PORT);
