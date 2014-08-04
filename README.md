@@ -6,7 +6,7 @@ Node.js weather server JSON API
 ##How it works
 - Get the city woeid code by scraping http://woeid.rosselliot.co.nz/
 - Query Yahoo Weather APIs for that woeid
-- Reply with the JSON weather forecast
+- Reply with the JSON weather forecast for 5 days from the moment of the request
 
 ===========
 
