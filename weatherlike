@@ -1,48 +1,73 @@
 var http 		= 	require('http');
 var https 		= 	require('https');
-
 var qs 			= 	require('querystring');
 var htmlparser2 = 	require('htmlparser2');
-
 var LRU 		=	require('lru-cache');
-
-var woeidurl	=	"http://woeid.rosselliot.co.nz/lookup/";
-var yahoo 		= 	"https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D$&format=json&callback=";
-
-
-var CACHE_LIMIT = 	1000;
-var idCache 	= 	LRU(CACHE_LIMIT);
 
 var VERBOSE 	= 	process.env.VERBOSE;
 
+/*
+	WOEID API
+ */
+var placesquery = 'select * from geo.places where text="$$$"';
+var woeidapi = 'http://query.yahooapis.com/v1/public/yql?q=$$$&rnd=DATE&format=json&callback=';
+/*
+	FORECAST API
+ */
+// var woeidurl	=	"http://woeid.rosselliot.co.nz/lookup/";
+var yahoo 		= 	"https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D$&format=json&callback=";
+
+/*
+	LRU CACHE SETTINGS
+ */
+var CACHE_LIMIT = 	1000;
+var idCache 	= 	LRU(CACHE_LIMIT);
 
 
-var woeid;
-var firstwoeid;
 
-var parser = new htmlparser2.Parser({
-	onattribute: function(name, value){
-		if (firstwoeid && name === "data-woeid")
-			{
-				woeid = value;
-				firstwoeid = false;
-				parser.end();
-			}
-	}
-});
+/*
+	UTILITY FUNCTIONS
+ */
+function getYahooURLFromWoeid(woeid){
+	return yahoo.replace("$", woeid);
+}
+
+function escapeQuery(query){
+	return qs.escape(query);
+}
+
+function getPlaceQuery(place){
+	return placesquery.replace("$$$", place);
+}
+
+function querifiedWoeidURL(escapedQuery){
+	var now = new Date();
+	return woeidapi.replace("DATE", now.getFullYear() + now.getMonth() + now.getDay() + now.getHours()).replace("$$$", escapedQuery);
+}
+/**************************************/
+
 
 
 function getWoeid(city, callback){
-	http.get(woeidurl+qs.escape(city), function(response){
-		woeid = "";
-		firstwoeid = true;
+	http.get(querifiedWoeidURL(escapeQuery(getPlaceQuery(city))), function(res){
+	var data = '';
 
-		response.on('data', function(data){
-			parser.write(data);
-		});
-		response.on('end', function(){
-			parser.end();
-			if(VERBOSE)
+	res.on('data', function(chunk){
+		data += chunk;
+	});
+
+	res.on('end', function(){
+		var obj = JSON.parse(data);
+		var woeid;
+		if (obj.query.results.place[0])
+			woeid = obj.query.results.place[0].woeid;
+		else if (obj.query.results.place.woeid)
+			woeid = obj.query.results.place.woeid;
+		else {
+			callback(true, null);
+			return;
+		}
+		if(VERBOSE)
 				console.log("woeid found is %s", woeid);
 			if (!idCache.has(city)){
 				idCache.set(city, woeid);	//	cache the <city, woeid>
@@ -52,16 +77,14 @@ function getWoeid(city, callback){
 				}
 			}
 			var url = getYahooURLFromWoeid(woeid);
-			getWeather(null, url, callback);
-		});
+			getWeather(woeid, url, callback);
+
 	});
+});
 }
 
-function getYahooURLFromWoeid(woeid){
-	return yahoo.replace("$", woeid);
-}
 
-function getWeather(err, yahoo, callback){
+function getWeather(woeid, yahoo, callback){
 	https.get(yahoo, function(response){
 		var weather = "";
 		response.on('data', function(data){
@@ -74,8 +97,8 @@ function getWeather(err, yahoo, callback){
 			else
 				callback(true, null);
 
-			woeid = "";
-			firstwoeid = true;
+			// woeid = "";
+			// firstwoeid = true;
 
 		});
 	});
@@ -89,7 +112,7 @@ function inCity(city, callback){
 				console.log("woeid : %s", idCache.peek(city));
 			}
 			woeid = idCache.get(city);
-			getWeather(null, getYahooURLFromWoeid(woeid), callback);
+			getWeather(woeid, getYahooURLFromWoeid(woeid), callback);
 		}
 	else
 		{
