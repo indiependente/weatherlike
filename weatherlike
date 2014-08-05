@@ -10,11 +10,10 @@ var VERBOSE 	= 	process.env.VERBOSE;
 	WOEID API
  */
 var placesquery = 'select * from geo.places where text="$$$"';
-var woeidapi = 'http://query.yahooapis.com/v1/public/yql?q=$$$&rnd=DATE&format=json&callback=';
+var woeidapi 	= 'http://query.yahooapis.com/v1/public/yql?q=$$$&rnd=DATE&format=json&callback=';
 /*
 	FORECAST API
  */
-// var woeidurl	=	"http://woeid.rosselliot.co.nz/lookup/";
 var yahoo 		= 	"https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D$&format=json&callback=";
 
 /*
