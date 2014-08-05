@@ -17,9 +17,9 @@ var VERBOSE 	= 	process.env.VERBOSE;
 
 
 
+var woeid;
+var firstwoeid;
 
-var woeid = "";
-var firstwoeid = true;
 var parser = new htmlparser2.Parser({
 	onattribute: function(name, value){
 		if (firstwoeid && name === "data-woeid")
@@ -34,6 +34,9 @@ var parser = new htmlparser2.Parser({
 
 function getWoeid(city, callback){
 	http.get(woeidurl+qs.escape(city), function(response){
+		woeid = "";
+		firstwoeid = true;
+
 		response.on('data', function(data){
 			parser.write(data);
 		});
@@ -85,13 +88,13 @@ function inCity(city, callback){
 				console.log("City %s found in cache!", city);
 				console.log("woeid : %s", idCache.peek(city));
 			}
-			getWeather(null, getYahooURLFromWoeid(idCache.get(city)), callback);
+			woeid = idCache.get(city);
+			getWeather(null, getYahooURLFromWoeid(woeid), callback);
 		}
 	else
 		{
 			if(VERBOSE){console.log("%s not cached yet", city);}
 			getWoeid(city, callback);
-
 		}
 }
 
