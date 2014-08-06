@@ -19,6 +19,7 @@ Node.js weather server JSON API
 
 
 ##Example
+More examples in `examples`
 ```javascript
 var weatherlike = require('./weatherlike');
 
@@ -34,13 +35,6 @@ http.createServer(function(req, res){
 	}
 }).listen(PORT);
 ```
-
-
-
-##Server REST API
-- `/weatherapi/city` e.g. `/weatherapi/city?city=Rome`
-- `/weatherapi/woeid` e.g. `/weatherapi/woeid?woeid=721943`
-
 
 ##JSON reply
 ####weatherlike sends back a reply like this for both requests:
