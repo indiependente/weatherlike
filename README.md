@@ -19,7 +19,7 @@ Node.js weather server JSON API
 
 
 ##Example
-More examples in `examples`
+More examples in `examples/`
 ```javascript
 var weatherlike = require('./weatherlike');
 
