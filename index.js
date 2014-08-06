@@ -1,7 +1,6 @@
 var http 		= 	require('http');
 var https 		= 	require('https');
 var qs 			= 	require('querystring');
-var htmlparser2 = 	require('htmlparser2');
 var LRU 		=	require('lru-cache');
 
 var VERBOSE 	= 	process.env.VERBOSE;

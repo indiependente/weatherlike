@@ -1,6 +1,4 @@
-var weatherlike	=	require('../weatherlike');
-
-
+var weatherlike	=	require('../');
 
 
 ['1118370',

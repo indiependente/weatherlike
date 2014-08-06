@@ -1,4 +1,4 @@
-var weatherlike	=	require('../weatherlike');
+var weatherlike	=	require('../');
 
 
 ['Rome',

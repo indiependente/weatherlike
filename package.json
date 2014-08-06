@@ -1,21 +1,29 @@
 {
   "name": "weatherlike",
   "version": "0.1.0",
-  "description": "REST weather information",
-  "main": "weatherlike",
+  "description": "JSON weather forecast module",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/indiependente/weatherlike.git"
+  },
+  "bugs": "https://github.com/indiependente/weatherlike/issues",
   "dependencies": {
-    "htmlparser2": "^3.7.2",
-    "lru-cache": "^2.5.0"
+    "lru-cache": "^2.5.0",
+    "querystring": "^0.2.0"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "node server.js 8000"
+    "test": "node examples/*.js"
   },
   "keywords": [
     "weather",
-    "rest",
+    "yahoo",
     "json"
   ],
   "author": "indiependente",
-  "license": "MIT"
+  "license": "MIT",
+  "engine": {
+    "node": ">=0.4"
+  }
 }
