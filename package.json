@@ -1,6 +1,6 @@
 {
   "name": "weatherlike",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "JSON weather forecast module",
   "main": "index.js",
   "repository": {
